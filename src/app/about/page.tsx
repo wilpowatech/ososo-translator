@@ -1,5 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About the Ososo Language Project",
+  description:
+    "Learn about Ososo Translator, a community-focused project documenting Ososo words, meanings, and pronunciation to help preserve the language.",
+};
 
 export default function AboutPage() {
   return (

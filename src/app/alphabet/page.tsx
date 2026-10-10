@@ -1,5 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Ososo Alphabet and Pronunciation",
+  description:
+    "Explore the Ososo alphabet, letters, vowel marks, and a sample text introducing the Ososo writing system and pronunciation.",
+};
 
 const alphabet = [
   "A","À","Á","B","Bh","D","Dh","E","Ẹ","Ẹ̀","Ẹ́",
