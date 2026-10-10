@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function AdminPage() {
@@ -15,7 +16,7 @@ export default function AdminPage() {
     <main className="page-shell">
       <nav className="navbar container">
         <Link href="/" className="brand">
-          <span className="brand-mark">O</span>
+          <span className="brand-mark"><Image src="/oruku.jpg" alt="Oruku" width={46} height={46} priority /></span>
           <span>
             <strong>Ososo</strong>
             <small>Translator</small>
@@ -25,6 +26,7 @@ export default function AdminPage() {
         <div className="nav-links">
           <Link href="/">Translator</Link>
           <Link href="/dictionary">Dictionary</Link>
+          <Link href="/alphabet">Alphabet</Link>
           <Link href="/about">About</Link>
           <Link href="/admin" className="active admin-link">Admin</Link>
         </div>

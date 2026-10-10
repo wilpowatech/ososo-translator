@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function AboutPage() {
@@ -5,7 +6,7 @@ export default function AboutPage() {
     <main className="page-shell">
       <nav className="navbar container">
         <Link href="/" className="brand">
-          <span className="brand-mark">O</span>
+          <span className="brand-mark"><Image src="/oruku.jpg" alt="Oruku" width={46} height={46} priority /></span>
           <span>
             <strong>Ososo</strong>
             <small>Translator</small>
@@ -15,6 +16,7 @@ export default function AboutPage() {
         <div className="nav-links">
           <Link href="/">Translator</Link>
           <Link href="/dictionary">Dictionary</Link>
+          <Link href="/alphabet">Alphabet</Link>
           <Link href="/about" className="active">About</Link>
           <Link href="/admin" className="admin-link">Admin</Link>
         </div>

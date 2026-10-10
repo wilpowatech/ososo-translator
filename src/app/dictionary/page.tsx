@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
@@ -51,7 +52,7 @@ export default function DictionaryPage() {
     <main className="page-shell">
       <nav className="navbar container">
         <Link href="/" className="brand">
-          <span className="brand-mark">O</span>
+          <span className="brand-mark"><Image src="/oruku.jpg" alt="Oruku" width={46} height={46} priority /></span>
           <span>
             <strong>Ososo</strong>
             <small>Translator</small>
@@ -63,6 +64,7 @@ export default function DictionaryPage() {
           <Link href="/dictionary" className="active">
             Dictionary
           </Link>
+          <Link href="/alphabet">Alphabet</Link>
           <Link href="/about">About</Link>
           <Link href="/admin" className="admin-link">
             Admin
