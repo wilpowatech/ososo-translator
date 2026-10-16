@@ -104,13 +104,17 @@ export default function DictionaryPage() {
         {!loading && !error && (
           <>
             <div className="dictionary-count">
-              {filteredWords.length}{" "}
+              Showing {filteredWords.length}{" "}
               {filteredWords.length === 1 ? "entry" : "entries"}
+              {search.trim() ? " matching your search" : " in alphabetical order"}
             </div>
 
-            {filteredWords.map((item) => (
+            {filteredWords.map((item, index) => (
               <article className="dictionary-item" key={item.id}>
-                <div>
+                <span className="dictionary-number" title={`Dictionary entry ${index + 1}`}>
+                  {index + 1}
+                </span>
+                <div className="dictionary-word">
                   <span className="category">
                     {item.category || "General"}
                   </span>

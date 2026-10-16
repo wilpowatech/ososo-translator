@@ -1030,3 +1030,75 @@ select:focus-visible {
   }
 }
 
+
+
+/* Dictionary numbering and brighter navbar hover */
+.dictionary-item {
+  grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr) auto;
+}
+
+.dictionary-number {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(23, 107, 69, 0.35);
+  border-radius: 10px;
+  background: #e8f3ec;
+  color: #0f4d32;
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.dictionary-word {
+  min-width: 0;
+}
+
+.nav-links a {
+  position: relative;
+  border-radius: 9px;
+  transition: color 180ms ease, background-color 180ms ease,
+    box-shadow 180ms ease, text-shadow 180ms ease, transform 180ms ease;
+}
+
+.nav-links a:hover {
+  color: #08783f;
+  background-color: rgba(91, 224, 143, 0.18);
+  text-shadow: 0 0 8px rgba(56, 210, 117, 0.7);
+  box-shadow: 0 0 6px rgba(56, 210, 117, 0.4),
+    0 0 18px rgba(56, 210, 117, 0.35),
+    0 0 30px rgba(56, 210, 117, 0.2);
+  transform: translateY(-1px);
+}
+
+.nav-links .admin-link:hover {
+  color: #075c31;
+  background-color: #d5f8e1;
+  border-color: #39bd70;
+  box-shadow: 0 0 7px rgba(56, 210, 117, 0.55),
+    0 0 20px rgba(56, 210, 117, 0.38),
+    0 0 34px rgba(56, 210, 117, 0.22);
+}
+
+@media (max-width: 760px) {
+  .dictionary-item {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    gap: 12px;
+  }
+
+  .dictionary-number {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .dictionary-item .meaning {
+    grid-column: 2;
+  }
+
+  .dictionary-item .sound-button {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+}
