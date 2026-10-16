@@ -1059,14 +1059,21 @@ select:focus-visible {
 
 .nav-links a {
   position: relative;
-  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
   transition: color 180ms ease, background-color 180ms ease,
-    box-shadow 180ms ease, text-shadow 180ms ease, transform 180ms ease;
+    border-color 180ms ease, box-shadow 180ms ease,
+    text-shadow 180ms ease, transform 180ms ease;
 }
 
 .nav-links a:hover {
   color: #08783f;
-  background-color: rgba(91, 224, 143, 0.18);
+  background-color: #d5f8e1;
+  border-color: #39bd70;
   text-shadow: 0 0 8px rgba(56, 210, 117, 0.7);
   box-shadow: 0 0 6px rgba(56, 210, 117, 0.4),
     0 0 18px rgba(56, 210, 117, 0.35),

@@ -13,6 +13,17 @@ type Word = {
   meaning: string;
 };
 
+// Make searches forgiving of missing tone marks and diacritics.
+// Original Ososo spellings remain unchanged in the dictionary.
+function normalizeForSearch(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\\u0300-\\u036f]/g, "")
+    .trim()
+    .toLocaleLowerCase()
+    .replace(/\\s+/g, " ");
+}
+
 export default function Home() {
   const [text, setText] = useState("");
   const [result, setResult] = useState("");
@@ -47,7 +58,12 @@ export default function Home() {
   }, []);
 
   const normalized = useMemo(
-    () => text.trim().toLowerCase(),
+    () => text.trim().toLocaleLowerCase().replace(/\\s+/g, " "),
+    [text]
+  );
+
+  const normalizedForSearch = useMemo(
+    () => normalizeForSearch(text),
     [text]
   );
 
@@ -63,12 +79,20 @@ export default function Home() {
       return;
     }
 
-    const match = words.find((item) => {
+    const exactMatch = words.find((item) => {
       if (direction === "ososo-to-english") {
-        return item.word.trim().toLowerCase() === normalized;
+        return item.word.trim().toLocaleLowerCase().replace(/\\s+/g, " ") === normalized;
       }
 
-      return item.meaning.trim().toLowerCase() === normalized;
+      return item.meaning.trim().toLocaleLowerCase().replace(/\\s+/g, " ") === normalized;
+    });
+
+    const match = exactMatch ?? words.find((item) => {
+      if (direction === "ososo-to-english") {
+        return normalizeForSearch(item.word) === normalizedForSearch;
+      }
+
+      return normalizeForSearch(item.meaning) === normalizedForSearch;
     });
 
     if (match) {
@@ -191,6 +215,17 @@ export default function Home() {
                   id="source-text"
                   value={text}
                   onChange={(e) => setText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === "Enter" &&
+                      !e.shiftKey &&
+                      !loading &&
+                      !loadError
+                    ) {
+                      e.preventDefault();
+                      translate();
+                    }
+                  }}
                   placeholder={
                     direction === "ososo-to-english"
                       ? "Enter an Ososo word or phrase..."
