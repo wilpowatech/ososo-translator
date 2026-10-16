@@ -201,7 +201,9 @@ button {
 }
 
 .language-dot.english {
-  background: #7c8790;
+  background: #ffdf00;
+  box-shadow: 0 0 6px rgba(255, 223, 0, 0.75),
+    0 0 12px rgba(255, 223, 0, 0.45);
 }
 
 .swap-button {
