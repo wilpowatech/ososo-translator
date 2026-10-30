@@ -18,10 +18,10 @@ type Word = {
 function normalizeForSearch(value: string) {
   return value
     .normalize("NFD")
-    .replace(/[\\u0300-\\u036f]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .trim()
     .toLocaleLowerCase()
-    .replace(/\\s+/g, " ");
+    .replace(/\s+/g, " ");
 }
 
 export default function Home() {
@@ -33,6 +33,7 @@ export default function Home() {
   const [words, setWords] = useState<Word[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const [translationNote, setTranslationNote] = useState("");
 
   useEffect(() => {
     async function loadDictionary() {
@@ -58,7 +59,7 @@ export default function Home() {
   }, []);
 
   const normalized = useMemo(
-    () => text.trim().toLocaleLowerCase().replace(/\\s+/g, " "),
+    () => text.trim().toLocaleLowerCase().replace(/\s+/g, " "),
     [text]
   );
 
@@ -76,36 +77,103 @@ export default function Home() {
   function translate() {
     if (!normalized) {
       setResult("");
+      setTranslationNote("");
       return;
     }
 
-    const exactMatch = words.find((item) => {
-      if (direction === "ososo-to-english") {
-        return item.word.trim().toLocaleLowerCase().replace(/\\s+/g, " ") === normalized;
-      }
+    type Candidate = {
+      tokens: string[];
+      target: string;
+    };
 
-      return item.meaning.trim().toLocaleLowerCase().replace(/\\s+/g, " ") === normalized;
-    });
+    const candidates: Candidate[] = [];
 
-    const match = exactMatch ?? words.find((item) => {
-      if (direction === "ososo-to-english") {
-        return normalizeForSearch(item.word) === normalizedForSearch;
-      }
-
-      return normalizeForSearch(item.meaning) === normalizedForSearch;
-    });
-
-    if (match) {
-      setResult(
+    for (const item of words) {
+      const sourceTerms =
         direction === "ososo-to-english"
-          ? match.meaning
-          : match.word
+          ? [item.word]
+          : item.meaning.split(/[;|/]/).map((part) => part.trim()).filter(Boolean);
+
+      for (const term of sourceTerms) {
+        const tokens =
+          normalizeForSearch(term).match(/[\p{L}\p{M}]+(?:['’][\p{L}\p{M}]+)*/gu) ?? [];
+
+        if (tokens.length > 0) {
+          candidates.push({
+            tokens,
+            target: direction === "ososo-to-english" ? item.meaning : item.word,
+          });
+        }
+      }
+    }
+
+    // Longest dictionary phrases are checked before individual words.
+    candidates.sort((a, b) => b.tokens.length - a.tokens.length);
+
+    const inputTokens = Array.from(
+      text.matchAll(/[\p{L}\p{M}]+(?:['’][\p{L}\p{M}]+)*/gu)
+    );
+
+    const output: string[] = [];
+    const unmatched: string[] = [];
+    const stopWords = new Set([
+      "a", "an", "the", "and", "or", "but", "to", "of", "in", "on",
+      "at", "for", "from", "by", "with", "is", "are", "was", "were",
+      "be", "been", "being", "he", "she", "it", "they", "we", "i",
+      "you", "his", "her", "their", "our", "my", "your", "this",
+      "that", "these", "those", "do", "does", "did", "not"
+    ]);
+
+    let cursor = 0;
+    let index = 0;
+
+    while (index < inputTokens.length) {
+      const current = normalizeForSearch(inputTokens[index][0]);
+
+      const match = candidates.find((candidate) =>
+        candidate.tokens.every((part, offset) => {
+          const inputToken = inputTokens[index + offset];
+          return inputToken &&
+            normalizeForSearch(inputToken[0]) === part;
+        })
       );
-    } else {
-      setResult(
-        `This ${sourceLanguage.toLowerCase()} word or phrase is not in the dictionary yet. You can help us add it.`
+
+      if (match) {
+        const first = inputTokens[index];
+        const last = inputTokens[index + match.tokens.length - 1];
+
+        const startAt = first.index ?? 0;
+        const endAt = (last.index ?? 0) + last[0].length;
+
+        output.push(text.slice(cursor, startAt), match.target);
+        cursor = endAt;
+        index += match.tokens.length;
+      } else {
+        if (
+          (direction === "ososo-to-english" || !stopWords.has(current)) &&
+          !unmatched.some((item) => normalizeForSearch(item) === current)
+        ) {
+          unmatched.push(inputTokens[index][0]);
+        }
+        index += 1;
+      }
+    }
+
+    output.push(text.slice(cursor));
+    setResult(output.join("").trim() || text);
+
+    const notes = [
+      "Dictionary-based draft only — Ososo sentence grammar, word order and tense have not been validated."
+    ];
+
+    if (unmatched.length > 0) {
+      notes.push(
+        "Terms not found in the dictionary were left unchanged: " +
+        unmatched.join(", ")
       );
     }
+
+    setTranslationNote(notes.join(" "));
   }
 
   function swapLanguages() {
@@ -117,6 +185,7 @@ export default function Home() {
 
     setText("");
     setResult("");
+    setTranslationNote("");
     setCopied(false);
   }
 
@@ -128,10 +197,6 @@ export default function Home() {
 
     setTimeout(() => setCopied(false), 1500);
   }
-
-  const isMissingTranslation =
-    result.startsWith("This ") &&
-    result.endsWith("add it.");
 
   return (
     <main>
@@ -244,6 +309,7 @@ export default function Home() {
                       onClick={() => {
                         setText("");
                         setResult("");
+                        setTranslationNote("");
                       }}
                     >
                       Clear
@@ -279,7 +345,13 @@ export default function Home() {
                   )}
                 </div>
 
-                {result && !isMissingTranslation && (
+                {translationNote && (
+                  <p className="translation-note" role="status">
+                    {translationNote}
+                  </p>
+                )}
+
+                {result && (
                   <button
                     type="button"
                     className="copy-button"
